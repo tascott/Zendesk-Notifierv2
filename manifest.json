@@ -1,0 +1,33 @@
+{
+	"manifest_version": 3,
+	"name": "ZendeskNotifier V2",
+	"version": "1.0.0",
+	"description": "Real-time Zendesk ticket notifications using official API",
+	"permissions": ["storage", "notifications", "alarms", "offscreen"],
+	"host_permissions": [
+		"https://*.zendesk.com/*",
+		"https://*.zendesk.com/api/*"
+	],
+	"icons": {
+		"48": "assets/book.png",
+		"128": "assets/book.png"
+	},
+	"background": {
+		"service_worker": "src/background/background.js",
+		"type": "module"
+	},
+	"action": {
+		"default_popup": "src/popup/popup.html"
+	},
+	"options_page": "src/options/options.html",
+	"web_accessible_resources": [{
+		"resources": [
+			"oauth-redirect.html",
+			"src/options/options.html",
+			"assets/book.png",
+			"assets/notification.mp3",
+			"src/offscreen/offscreen.html"
+		],
+		"matches": ["<all_urls>"]
+	}]
+}
