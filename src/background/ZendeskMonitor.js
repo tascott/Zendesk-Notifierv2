@@ -6,6 +6,7 @@ export class ZendeskMonitor {
         this.zauth = null;
         this.fetchAllNewTickets = false;
         this.isMonitorActive = true;
+        this.mainGroupIds = [1500003307922, 4412451996819];
     }
 
     async initialize() {
@@ -142,7 +143,10 @@ export class ZendeskMonitor {
             }
 
             const data = await response.json();
-            const newStatusTickets = data.tickets.filter(ticket => ticket.status === 'new');
+            const newStatusTickets = data.tickets.filter(ticket =>
+                ticket.status === 'new' &&
+                this.mainGroupIds.includes(ticket.group_id)
+            );
 
             // Separate tickets by age
             const recentlyCreatedTickets = [];
@@ -150,6 +154,7 @@ export class ZendeskMonitor {
 
             newStatusTickets.forEach(ticket => {
                 const ticketAge = currentTime - new Date(ticket.created_at).getTime();
+                console.log(`Ticket ${ticket.id} age: ${ticketAge}ms, threshold: ${RECENT_THRESHOLD}ms`);
                 if (ticketAge <= RECENT_THRESHOLD) {
                     recentlyCreatedTickets.push(ticket);
                 } else {
