@@ -170,11 +170,11 @@ export class ZendeskMonitor {
                 shouldPlaySound: this.lastCheckTime === 0 || currentTime - this.lastCheckTime > 2000
             });
 
-            // Create notifications for all tickets first
-            for (const ticket of recentlyCreatedTickets) {
+            // Create notifications for all tickets first, newest on top
+            for(const ticket of [...recentlyCreatedTickets].reverse()) {
                 await this.createNotificationOnly(ticket);
             }
-            for (const ticket of existingNewTickets) {
+            for(const ticket of [...existingNewTickets].reverse()) {
                 await this.createNotificationOnly(ticket);
             }
 
