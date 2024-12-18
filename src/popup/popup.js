@@ -87,7 +87,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkIntervalSelect.addEventListener('change', async (e) => {
         await chrome.storage.local.set({ checkInterval: e.target.value });
         chrome.runtime.sendMessage({ type: 'UPDATE_CHECK_INTERVAL' });
+        updateApiCallCount(e.target.value);
     });
+
+    // Function to update API call count
+    function updateApiCallCount(interval) {
+        const minutesIn12Hours = 12 * 60;
+        const callCount = Math.floor(minutesIn12Hours / parseFloat(interval));
+        document.getElementById('apiCallCount').textContent = callCount;
+    }
+
+    // Initial API call count update
+    updateApiCallCount(storage.checkInterval || '0.5');
 
     // Initial display of tickets
     displayTickets();
