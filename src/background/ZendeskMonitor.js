@@ -109,9 +109,7 @@ export class ZendeskMonitor {
             const currentTime = Date.now();
 
             // Ensure offscreen document is ready
-            console.log('Ensuring offscreen document exists...');
             await this.ensureOffscreenDocument();
-            console.log('Offscreen document ready');
 
             // Get check interval from storage and convert to milliseconds
             const storage = await chrome.storage.local.get(['checkInterval']);
@@ -152,22 +150,11 @@ export class ZendeskMonitor {
 
             newStatusTickets.forEach(ticket => {
                 const ticketAge = currentTime - new Date(ticket.created_at).getTime();
-                console.log(`Ticket ${ticket.id} age: ${ticketAge}ms, threshold: ${RECENT_THRESHOLD}ms`);
                 if (ticketAge <= RECENT_THRESHOLD) {
                     recentlyCreatedTickets.push(ticket);
                 } else {
                     existingNewTickets.push(ticket);
                 }
-            });
-
-            console.log('Recent tickets:', recentlyCreatedTickets.length);
-            console.log('Existing tickets:', existingNewTickets.length);
-
-            console.log('Sound timing check:', {
-                currentTime,
-                lastCheckTime: this.lastCheckTime,
-                timeSinceLastCheck: currentTime - this.lastCheckTime,
-                shouldPlaySound: this.lastCheckTime === 0 || currentTime - this.lastCheckTime > 2000
             });
 
             // Create notifications for all tickets first, newest on top
@@ -180,23 +167,21 @@ export class ZendeskMonitor {
 
             // Modified condition to always play on first check, but only once
             if (this.lastCheckTime === 0 || currentTime - this.lastCheckTime > 2000) {
-                console.log('Playing sounds for tickets:', {
-                    existingCount: existingNewTickets.length,
-                    recentCount: recentlyCreatedTickets.length
-                });
-
-                // Play only one type of sound based on priority
+                // Play sounds for both types of tickets if present
                 if (recentlyCreatedTickets.length > 0) {
-                    console.log('Playing sound for recent tickets');
+                    // console.log('Playing sound for recent tickets');
                     await this.playNotificationSound(true);
-                } else if (existingNewTickets.length > 0) {
-                    console.log('Playing sound for existing tickets');
+                    // Add a small delay between sounds
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
+                if (existingNewTickets.length > 0) {
+                    // console.log('Playing sound for existing tickets');
                     await this.playNotificationSound(false);
                 }
 
                 this.lastCheckTime = currentTime;
             } else {
-                console.log('Skipping sounds - too soon since last check');
+                // console.log('Skipping sounds - too soon since last check');
             }
 
             // Update badge and storage
@@ -217,7 +202,7 @@ export class ZendeskMonitor {
 
     async createNotificationOnly(ticket) {
         const notificationId = `ticket-${ticket.id}`;
-        console.log(`Creating notification for ticket ${ticket.id}`);
+        // console.log(`Creating notification for ticket ${ticket.id}`);
 
         return new Promise((resolve) => {
             chrome.notifications.create(notificationId, {
@@ -232,10 +217,10 @@ export class ZendeskMonitor {
     }
 
     async playNotificationSound(isRecentlyCreated) {
-        console.log(`Attempting to play ${isRecentlyCreated ? 'recent' : 'existing'} ticket sound`);
+        // console.log(`Attempting to play ${isRecentlyCreated ? 'recent' : 'existing'} ticket sound`);
         try {
             return new Promise((resolve) => {
-                console.log('Sending PLAY_SOUND message...');
+                // console.log('Sending PLAY_SOUND message...');
                 chrome.runtime.sendMessage({
                     type: 'PLAY_SOUND',
                     isUrgent: isRecentlyCreated
@@ -243,7 +228,7 @@ export class ZendeskMonitor {
                     if (chrome.runtime.lastError) {
                         console.error('Error sending play sound message:', chrome.runtime.lastError);
                     } else {
-                        console.log('Play sound message sent successfully, response:', response);
+                        // console.log('Play sound message sent successfully, response:', response);
                     }
                     resolve();
                 });
@@ -286,25 +271,25 @@ export class ZendeskMonitor {
     async ensureOffscreenDocument() {
         try {
             const hasDocument = await chrome.offscreen.hasDocument();
-            console.log('Checking offscreen document status:', hasDocument);
+            // console.log('Checking offscreen document status:', hasDocument);
 
             if (!hasDocument) {
-                console.log('No offscreen document exists, creating new one...');
+                // console.log('No offscreen document exists, creating new one...');
                 try {
                     await chrome.offscreen.createDocument({
                         url: 'src/offscreen/offscreen.html',
                         reasons: ['AUDIO_PLAYBACK'],
                         justification: 'Playing notification sound'
                     });
-                    console.log('Offscreen document created successfully');
+                    // console.log('Offscreen document created successfully');
 
                     // Add a small delay to ensure document is ready
                     await new Promise(resolve => setTimeout(resolve, 500));
-                    console.log('Offscreen document initialization complete');
+                    // console.log('Offscreen document initialization complete');
                 } catch (createError) {
                     // If we get an error about existing document, just log it and continue
                     if (createError.message.includes('single offscreen document')) {
-                        console.log('Offscreen document already exists, continuing...');
+                        // console.log('Offscreen document already exists, continuing...');
                         return;
                     }
                     throw createError;

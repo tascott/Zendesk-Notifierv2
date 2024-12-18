@@ -3,8 +3,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fetchAllNewToggle = document.getElementById('fetchAllNewToggle');
     const checkIntervalSelect = document.getElementById('checkInterval');
 
-    console.log('Toggle element:', fetchAllNewToggle);
-
     if (!fetchAllNewToggle) {
         console.error('Toggle element not found');
         return;

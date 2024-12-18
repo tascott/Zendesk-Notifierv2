@@ -1,6 +1,6 @@
 // Load audio files when the document loads
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Offscreen document loaded');
+    // console.log('Offscreen document loaded');
     const sound1 = document.getElementById('notificationSound');
     const sound2 = document.getElementById('notificationSound2');
 
@@ -8,19 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
     sound1.load();
     sound2.load();
 
-    console.log('Audio elements initialized:', {
-        sound1: sound1 ? 'found' : 'missing',
-        sound2: sound2 ? 'found' : 'missing'
-    });
+    // console.log('Audio elements initialized:', {
+    //     sound1: sound1 ? 'found' : 'missing',
+    //     sound2: sound2 ? 'found' : 'missing'
+    // });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log('Received message in offscreen:', message);
+    // console.log('Received message in offscreen:', message);
 
     if (message.type === 'PLAY_SOUND') {
-        console.log('Playing sound, isUrgent:', message.isUrgent);
+        // console.log('Playing sound, isUrgent:', message.isUrgent);
         const audioId = message.isUrgent ? 'notificationSound' : 'notificationSound2';
-        console.log('Selected audio ID:', audioId);
+        // console.log('Selected audio ID:', audioId);
         const audio = document.getElementById(audioId);
 
         if (!audio) {
@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (playPromise !== undefined) {
             playPromise
                 .then(() => {
-                    console.log(`Successfully playing ${audioId}`);
+                    // console.log(`Successfully playing ${audioId}`);
                     sendResponse({ success: true });
                 })
                 .catch(error => {

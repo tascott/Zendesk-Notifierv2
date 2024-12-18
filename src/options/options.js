@@ -30,7 +30,6 @@ document.getElementById('credentials-form').addEventListener('submit', async (e)
     const domain = document.getElementById('domain').value.trim();
 
     await chrome.storage.local.set({ zendeskDomain: domain });
-    console.log('Domain saved:', domain);
 
     // Trigger monitor initialization
     chrome.runtime.sendMessage({type: 'INITIALIZE_MONITOR'});
