@@ -18,21 +18,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('domain').value = storage.zendeskDomain;
     }
 
-    if (storage.checkInterval) {
-        document.getElementById('checkInterval').value = storage.checkInterval;
-    }
-
     updateAuthStatus(storage.zauth ? 'Authenticated' : 'Not authenticated');
 
     // Add event listener for the auth button
     document.getElementById('auth-button').addEventListener('click', startAuthFlow);
-
-    // Add event listener for the interval dropdown
-    document.getElementById('checkInterval').addEventListener('change', async (e) => {
-        const interval = e.target.value;
-        await chrome.storage.local.set({ checkInterval: interval });
-        chrome.runtime.sendMessage({ type: 'UPDATE_CHECK_INTERVAL' });
-    });
 });
 
 // Form submit handler

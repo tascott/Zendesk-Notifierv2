@@ -4,8 +4,12 @@
     <title>Audio Player</title>
 </head>
 <body>
-    <audio id="notificationSound" src="/assets/notification.mp3"></audio>
-    <audio id="notificationSound2" src="/assets/notification2.mp3"></audio>
+    <audio id="notificationSound" preload="auto">
+        <source src="/assets/notification.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="notificationSound2" preload="auto">
+        <source src="/assets/notification2.mp3" type="audio/mpeg">
+    </audio>
     <script src="offscreen.js"></script>
 </body>
 </html>
