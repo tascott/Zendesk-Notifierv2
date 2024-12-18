@@ -54,6 +54,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         monitor.fetchAllNewTickets = message.fetchAllNew;
         monitor.checkNewTickets(); // Trigger immediate check with new setting
     }
+    if (message.type === 'UPDATE_MONITOR_ACTIVE') {
+        monitor.isMonitorActive = message.isActive;
+        if (message.isActive) {
+            console.log('Monitor activated, starting checks');
+            monitor.checkNewTickets();
+            startPeriodicCheck();
+        } else {
+            console.log('Monitor deactivated, stopping checks');
+            stopPeriodicCheck();
+        }
+    }
+    if (message.type === 'UPDATE_CHECK_INTERVAL') {
+        startPeriodicCheck(); // Restart periodic check with new interval
+    }
 });
 
 // Handle notification clicks
@@ -78,20 +92,24 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 // Function to start periodic check
-function startPeriodicCheck() {
+async function startPeriodicCheck() {
     console.log('Setting up periodic check...');
+
+    // Get stored interval or use default of 30 seconds
+    const storage = await chrome.storage.local.get(['checkInterval']);
+    const checkInterval = storage.checkInterval || 0.5;
 
     // Clear any existing alarms
     chrome.alarms.clear('checkTickets', (wasCleared) => {
         console.log('Previous alarm cleared:', wasCleared);
 
-        // Create new alarm
+        // Create new alarm with stored interval
         chrome.alarms.create('checkTickets', {
-            periodInMinutes: 0.5, // Check every 30 seconds
+            periodInMinutes: parseFloat(checkInterval), // Convert string to number
             delayInMinutes: 0  // Start immediately
         });
 
-        console.log('New alarm created');
+        console.log('New alarm created with interval:', checkInterval, 'minutes');
 
         // Do an immediate check
         console.log('Performing immediate check');
@@ -128,3 +146,8 @@ monitor.initialize().then(initialized => {
         console.log('Monitor failed to initialize on load');
     }
 });
+
+// Add this function to stop periodic checks
+function stopPeriodicCheck() {
+    chrome.alarms.clear('checkTickets');
+}

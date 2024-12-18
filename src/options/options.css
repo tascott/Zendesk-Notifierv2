@@ -1,0 +1,11 @@
+select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 150px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}

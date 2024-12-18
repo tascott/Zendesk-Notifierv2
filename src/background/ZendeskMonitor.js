@@ -5,12 +5,13 @@ export class ZendeskMonitor {
         this.domain = null;
         this.zauth = null;
         this.fetchAllNewTickets = false;
+        this.isMonitorActive = true;
     }
 
     async initialize() {
         try {
             console.log('Initializing ZendeskMonitor');
-            const storage = await chrome.storage.local.get(['zauth', 'zendeskDomain']);
+            const storage = await chrome.storage.local.get(['zauth', 'zendeskDomain', 'isMonitorActive']);
 
             if (!storage.zendeskDomain) {
                 console.error('No Zendesk domain configured');
@@ -25,6 +26,7 @@ export class ZendeskMonitor {
             }
 
             this.zauth = storage.zauth;
+            this.isMonitorActive = storage.isMonitorActive || false;
             this.isInitialized = true;
             console.log('ZendeskMonitor initialized successfully');
             return true;
@@ -32,6 +34,10 @@ export class ZendeskMonitor {
             console.error('Initialization error:', error);
             return false;
         }
+    }
+
+    canCheckTickets() {
+        return this.isInitialized && this.isMonitorActive;
     }
 
     async startAuthFlow() {
@@ -58,6 +64,7 @@ export class ZendeskMonitor {
             `state=${state}`;
 
         console.log('Auth URL:', authUrl);
+        console.log('Full auth URL:', authUrl);
         chrome.tabs.create({ url: authUrl });
     }
 
@@ -88,13 +95,20 @@ export class ZendeskMonitor {
     }
 
     async checkNewTickets() {
-        if (!this.isInitialized) {
-            console.log('Monitor not initialized, skipping check');
+        if (!this.canCheckTickets()) {
+            console.log('Monitor not active or not initialized, skipping check');
             return;
         }
 
         try {
             console.log('Checking for tickets...');
+            const currentTime = Date.now();
+
+            // Get check interval from storage and convert to milliseconds
+            const storage = await chrome.storage.local.get(['checkInterval']);
+            const checkInterval = (parseFloat(storage.checkInterval) || 0.5) * 60 * 1000; // Convert minutes to ms
+            const BUFFER_TIME = 2000; // 2 second buffer
+            const RECENT_THRESHOLD = checkInterval + BUFFER_TIME;
 
             const params = new URLSearchParams({
                 'sort_by': 'created_at',
@@ -123,64 +137,77 @@ export class ZendeskMonitor {
             const data = await response.json();
             const newStatusTickets = data.tickets.filter(ticket => ticket.status === 'new');
 
-            // TODO: Add "open" status tickets to the list
-            // fetching most recent, need to check for all open
+            // Separate tickets by age
+            const recentlyCreatedTickets = [];
+            const existingNewTickets = [];
 
-            // If > 1 ticket, Notifications to say 'new tickets', not per ticket
-            // distinguish in list
+            newStatusTickets.forEach(ticket => {
+                const ticketAge = currentTime - new Date(ticket.created_at).getTime();
+                if (ticketAge <= RECENT_THRESHOLD) {
+                    recentlyCreatedTickets.push(ticket);
+                } else {
+                    existingNewTickets.push(ticket);
+                }
+            });
 
-            console.log('Tickets with new status:', newStatusTickets.length);
-
-            // look at api for only new/open not all then filter by status
-
-
-            // add an elemement to show number of open tickets and new
-
-
-            // Update badge
+            // Update badge with total new tickets
             chrome.action.setBadgeText({
                 text: newStatusTickets.length > 0 ? newStatusTickets.length.toString() : ''
             });
             chrome.action.setBadgeBackgroundColor({ color: '#FF4A1F' });
 
-            // Create notifications for all new status tickets
-            console.log('Creating notifications for tickets');
-            newStatusTickets.forEach(async (ticket) => {
-                const notificationId = `ticket-${ticket.id}`;
-
-                // Create or get the offscreen document for audio
-                if (!await chrome.offscreen.hasDocument()) {
-                    await chrome.offscreen.createDocument({
-                        url: 'src/offscreen/offscreen.html',
-                        reasons: ['AUDIO_PLAYBACK'],
-                        justification: 'Playing notification sound'
-                    });
-                }
-
-                chrome.notifications.create(notificationId, {
-                    type: 'basic',
-                    iconUrl: chrome.runtime.getURL('assets/book.png'),
-                    title: `New Zendesk Ticket #${ticket.id}`,
-                    message: ticket.subject || 'No subject',
-                    requireInteraction: true,
-                    silent: false
-                }, () => {
-                    // Play sound through offscreen document
-                    chrome.runtime.sendMessage({ type: 'PLAY_SOUND' });
+            // Handle notifications based on ticket age
+            if (existingNewTickets.length > 0) {
+                // Create notifications for existing new tickets (higher priority)
+                existingNewTickets.forEach(async (ticket) => {
+                    await this.createTicketNotification(ticket, false); // false = older ticket sound
                 });
-            });
+            } else if (recentlyCreatedTickets.length > 0) {
+                // Create notifications for recently created tickets
+                recentlyCreatedTickets.forEach(async (ticket) => {
+                    await this.createTicketNotification(ticket, true); // true = recent ticket sound
+                });
+            }
 
-            // Store tickets
+            // Store tickets and update last check time
             await chrome.storage.local.set({
                 'recentTickets': data.tickets,
                 'lastCheck': new Date().toLocaleString()
             });
 
-            this.lastCheckTime = Date.now();
+            this.lastCheckTime = currentTime;
 
         } catch (error) {
             console.error('Error in checkNewTickets:', error);
         }
+    }
+
+    async createTicketNotification(ticket, isRecentlyCreated) {
+        const notificationId = `ticket-${ticket.id}`;
+
+        // Create or get the offscreen document for audio
+        if (!await chrome.offscreen.hasDocument()) {
+            await chrome.offscreen.createDocument({
+                url: 'src/offscreen/offscreen.html',
+                reasons: ['AUDIO_PLAYBACK'],
+                justification: 'Playing notification sound'
+            });
+        }
+
+        chrome.notifications.create(notificationId, {
+            type: 'basic',
+            iconUrl: chrome.runtime.getURL('assets/book.png'),
+            title: `New Zendesk Ticket #${ticket.id}`,
+            message: ticket.subject || 'No subject',
+            requireInteraction: true,
+            silent: false
+        }, () => {
+            // Play appropriate sound through offscreen document
+            chrome.runtime.sendMessage({
+                type: 'PLAY_SOUND',
+                isUrgent: !isRecentlyCreated // Play urgent sound for older tickets
+            });
+        });
     }
 
     async processNewTickets(tickets) {

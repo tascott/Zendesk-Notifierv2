@@ -26,8 +26,10 @@
 			"src/options/options.html",
 			"assets/book.png",
 			"assets/notification.mp3",
+			"assets/notification2.mp3",
 			"src/offscreen/offscreen.html"
 		],
 		"matches": ["<all_urls>"]
-	}]
+	}],
+	"key":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4C7ISlhkbPxUb6U9623Y7Izs0QpquiM3o4St0tWomIBLmczAgwBv88dWbI6idsFccDy7puVRN4Vn42uzMn5K5hFjZMjzR6HATVeS+Ghgb0RrtnOsxvpn+yVPTS0gKM9TevMQF3w/AViKESYCYQt0zmX+ge+qBpizyWbWqe80XHxkKO+tr3NYYgQUUUpGk1DHvDCpVWGrJGbD+Z9p5Ank0TizrSIXWRsw8zziPBlUkhC/oUcjX//YO94Ps1ZpL31GQq4XYuP/Dd2Nkp7/6LCH5lG3ltUtKLN91ysmNoXNT259KWCDGFnG+JjdqyujB9teayp5/2MOhVtkGiN5eePGhwIDAQAB"
 }

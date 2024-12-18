@@ -1,95 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Recent Tickets</title>
-    <style>
-        body {
-            width: 400px;
-            padding: 10px;
-            font-family: Arial, sans-serif;
-        }
-        .ticket {
-            border: 1px solid #ccc;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .ticket:hover {
-            background-color: #f5f5f5;
-        }
-        .ticket a {
-            color: #1976D2;
-            text-decoration: none;
-        }
-        .ticket a:hover {
-            text-decoration: underline;
-        }
-        .new-ticket {
-            border-color: #FF4A1F;
-            background-color: #FFF3E0;
-        }
-        .last-check {
-            color: #666;
-            font-size: 0.8em;
-            margin-bottom: 10px;
-        }
-        .settings-panel {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #ccc;
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 20px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 20px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #1976D2;
-        }
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-        .toggle-label {
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-    </style>
+    <title>Zendesk Notifier</title>
+    <link rel="stylesheet" href="popup.css">
 </head>
 <body>
     <div class="settings-panel">
-        <label class="toggle-switch">
-            <input type="checkbox" id="fetchAllNewToggle">
-            <span class="slider"></span>
-        </label>
-        <span class="toggle-label">Fetch all new tickets</span>
+        <div class="toggle-row">
+            <label class="toggle-switch">
+                <input type="checkbox" id="monitorActiveToggle">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Monitor Active</span>
+        </div>
+
+        <div class="toggle-row">
+            <label class="toggle-switch">
+                <input type="checkbox" id="fetchAllNewToggle">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Display New Only</span>
+        </div>
+
+        <div class="interval-row">
+            <label for="checkInterval">Check Interval:</label>
+            <select id="checkInterval">
+                <option value="0.5">30 seconds</option>
+                <option value="1">1 minute</option>
+                <option value="1.5">1.5 minutes</option>
+                <option value="2">2 minutes</option>
+            </select>
+        </div>
     </div>
     <div class="last-check">Last checked: <span id="lastCheck">Never</span></div>
     <div id="tickets">Loading tickets...</div>

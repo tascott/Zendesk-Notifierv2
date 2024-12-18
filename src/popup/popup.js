@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const monitorActiveToggle = document.getElementById('monitorActiveToggle');
     const fetchAllNewToggle = document.getElementById('fetchAllNewToggle');
+    const checkIntervalSelect = document.getElementById('checkInterval');
+
     console.log('Toggle element:', fetchAllNewToggle);
 
     if (!fetchAllNewToggle) {
@@ -7,12 +10,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const storage = await chrome.storage.local.get(['recentTickets', 'lastCheck', 'zendeskDomain', 'fetchAllNewTickets']);
+    // Combined storage get
+    const storage = await chrome.storage.local.get([
+        'recentTickets',
+        'lastCheck',
+        'zendeskDomain',
+        'fetchAllNewTickets',
+        'isMonitorActive',
+        'checkInterval'
+    ]);
+
     const ticketsDiv = document.getElementById('tickets');
     const lastCheckSpan = document.getElementById('lastCheck');
 
-    // Set toggle state from storage
+    // Set initial toggle states, default isMonitorActive to true
+    monitorActiveToggle.checked = storage.isMonitorActive !== false; // Will be true unless explicitly set to false
     fetchAllNewToggle.checked = storage.fetchAllNewTickets || false;
+    checkIntervalSelect.value = storage.checkInterval || '0.5';
 
     // Function to display tickets
     function displayTickets() {
@@ -58,6 +72,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Wait a bit for the background process to fetch new tickets
         setTimeout(displayTickets, 1000);
+    });
+
+    // Add monitor active toggle listener
+    monitorActiveToggle.addEventListener('change', async (e) => {
+        await chrome.storage.local.set({ isMonitorActive: e.target.checked });
+        chrome.runtime.sendMessage({
+            type: 'UPDATE_MONITOR_ACTIVE',
+            isActive: e.target.checked
+        });
+    });
+
+    // Add interval change listener
+    checkIntervalSelect.addEventListener('change', async (e) => {
+        await chrome.storage.local.set({ checkInterval: e.target.value });
+        chrome.runtime.sendMessage({ type: 'UPDATE_CHECK_INTERVAL' });
     });
 
     // Initial display of tickets
