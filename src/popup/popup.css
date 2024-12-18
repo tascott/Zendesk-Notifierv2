@@ -1,26 +1,43 @@
 body {
-    width: 400px;
-    padding: 10px;
-    font-family: Arial, sans-serif;
+    width: 380px;
+    margin: 0;
+    padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: #1a1a1a;
+    background: #f8f9fa;
 }
 
 .settings-panel {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #ccc;
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .toggle-row {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    justify-content: space-between;
+    padding: 12px 0;
+    margin: 4px 0;
+}
+
+.toggle-row .toggle-label {
+    order: -1;
+    margin-right: auto;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
 }
 
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 20px;
+    width: 44px;
+    height: 24px;
+    margin-left: 12px;
 }
 
 .toggle-switch input {
@@ -36,88 +53,128 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 20px;
+    background-color: #e5e7eb;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 24px;
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 16px;
-    width: 16px;
-    left: 2px;
-    bottom: 2px;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
     background-color: white;
-    transition: .4s;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 input:checked + .slider {
-    background-color: #1976D2;
+    background-color: #2563eb;
 }
 
 input:checked + .slider:before {
     transform: translateX(20px);
 }
 
-.toggle-label {
-    margin-left: 10px;
-    vertical-align: middle;
-}
-
-.ticket {
-    border: 1px solid #ccc;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 4px;
-}
-
-.ticket:hover {
-    background-color: #f5f5f5;
-}
-
-.ticket a {
-    color: #1976D2;
-    text-decoration: none;
-}
-
-.ticket a:hover {
-    text-decoration: underline;
-}
-
-.new-ticket {
-    border-color: #FF4A1F;
-    background-color: #FFF3E0;
-}
-
-.last-check {
-    color: #666;
-    font-size: 0.8em;
-    margin-bottom: 10px;
-}
-
 .interval-row {
-    margin: 15px 0;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
+    padding: 12px 0;
+    margin: 4px 0;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 12px;
+}
+
+.interval-row label {
+    margin-right: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
 }
 
 select {
-    padding: 5px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;
     width: 120px;
+    appearance: none;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 32px;
+}
+
+select:hover {
+    border-color: #2563eb;
+    background-color: #f1f5f9;
+}
+
+select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.ticket {
+    background: white;
+    border-radius: 7px;
+    padding: 11px;
+    margin: 7px 0;
+    border-left: 4px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.ticket:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.new-ticket {
+    border-left-color: #2563eb;
+    background: linear-gradient(to right, #f0f7ff, white);
+}
+
+.ticket a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.ticket a:hover {
+    color: #1d4ed8;
+}
+
+.ticket div {
+    color: #64748b;
+    font-size: 12px;
+    margin: 4px 0;
 }
 
 .api-calls-info {
-    color: #666;
-    font-size: 0.8em;
-    margin-top: 4px;
-    margin-bottom: 15px;
+    font-size: 12px;
+    color: #64748b;
     text-align: right;
-    padding-right: 0;
-    margin-left: auto;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.last-check {
+    font-size: 12px;
+    color: #64748b;
+    padding: 12px 0;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 16px;
 }
